@@ -43,7 +43,8 @@
       - name: MONGODB_ADMIN_PASSWORD
         value: "{{ mongodb_admin_pass }}"
       image: mongo:{{ mongodb_version }}
-      name: db
+      command: ["/bin/sh"]
+      args: ["-c", "mongod --storageEngine=mmapv1 --bind_ip 0.0.0.0"]
       ports:
       - container_port: 27017
         protocol: TCP

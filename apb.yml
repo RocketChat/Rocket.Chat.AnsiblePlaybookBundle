@@ -29,13 +29,13 @@ parameters:
   - mongodb_version:
       title: MongoDB Version
       type: enum
-      default: 3.0
-      enum: ["3.0", "3.2"]
+      default: "3.2"
+      enum: ["3.2"]
   - rocketchat_version:
       title: RocketChat Version
       type: enum
       default: latest
-      enum: ["latest", "0.57.1", "0.56.0"]
+      enum: ["latest", "0.57.2", "0.56.0"]
 
 required:
   - mongodb_user

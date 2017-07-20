@@ -44,19 +44,10 @@
         value: "{{ mongodb_admin_pass }}"
       image: mongo:{{ mongodb_version }}
       name: db
-      command:
-      - mongod
-      args: ['--smallfiles', '--oplogSize', '128', '--replSet', 'rs0', '--bind_ip', '0.0.0.0']
       ports:
       - container_port: 27017
         protocol: TCP
         name: mongo-27017
-    - name: enable-replicaset
-      image: mongo:{{ mongodb_version }}
-      command:
-      - mongo
-      args: ['127.0.0.1/{{ mongodb_name }}', '--eval', '"rs.initiate()"']
-      restartPolicy: onFailure
 
 - name: create rocketchat deployment config
   openshift_v1_deployment_config:
@@ -78,9 +69,7 @@
       - name: ROOT_URL
         value: "http://{{ route.route.spec.host }}"
       - name: MONGO_URL
-        value: "mongodb://mongo:27017/{{ mongodb_name }}?replicaSet=rs0"
-      - name: MONGO_OPLOG_URL
-        value: "mongodb://mongo:27017/local?replicaSet=rs0"
+        value: "mongodb://mongo:27017/{{ mongodb_name }}"
       - name: INSTANCE_IP
         valueFrom:
           fieldRef:

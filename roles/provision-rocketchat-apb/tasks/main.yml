@@ -52,11 +52,12 @@
         protocol: TCP
         name: mongo-27017
     - name: enable-replicaset
-      image: mongo:{{ mongodb_version }}
-      command:
-      - mongo
-      args: ['127.0.0.1/{{ mongodb_name }}', '--eval', '"rs.initiate()"']
-      restartPolicy: onFailure
+      image: geekgonecrazy/mongo-sidecar
+      env:
+      - name: MONGO_HOST
+        value: "mongo"
+      - name: MONGO_DB
+        value: "rocketchat"
 
 - name: create rocketchat deployment config
   openshift_v1_deployment_config:

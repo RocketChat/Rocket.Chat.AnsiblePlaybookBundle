@@ -19,7 +19,7 @@
 
 - name: create mongo deployment config
   with_sequence:
-    - "count=3"
+    - "count={{ mongodb_replicas }}"
   openshift_v1_deployment_config:
     name: mongo-{{ item }}
     namespace: '{{ namespace }}'
@@ -43,8 +43,12 @@
         value: "{{ mongodb_admin_pass }}"
       image: mongo:{{ mongodb_version }}
       name: db
-      command: ["/bin/sh"]
-      args: ["-c", "echo \"$POD_IP mongo-{{ item }}\" >> /etc/hosts && cat /etc/hosts && mongod --storageEngine=mmapv1 --smallfiles --oplogSize 128 --replSet rs0 --bind_ip 0.0.0.0"]
+      command: ["mongod"]
+      args: ["--storageEngine=mmapv1", "--smallfiles", "--oplogSize", "128", "--replSet", "rs0", "--bind_ip", "0.0.0.0"]
+      lifecycle:
+        postStart:
+          exec:
+            command: ["/bin/sh", "-c",  "echo \"$POD_IP mongo-{{ item }}\" >> /etc/hosts"]
       ports:
       - container_port: 27017
         protocol: TCP
@@ -71,7 +75,7 @@
     labels:
       app: rocketchat
       service: rocketchat
-    replicas: 1
+    replicas: "{{ rocketchat_replicas }}"
     selector:
       app: rocketchat
       service: rocketchat
@@ -86,7 +90,7 @@
       - name: MONGO_URL
         value: "mongodb://mongo-1:27017/{{ mongodb_name }}?replicaSet=rs0"
       - name: MONGO_OPLOG_URL
-        value: "mongodb://mongo:27017/local?replicaSet=rs0"
+        value: "mongodb://mongo-1:27017/local?replicaSet=rs0"
       - name: INSTANCE_IP
         valueFrom:
           fieldRef:
@@ -114,7 +118,7 @@
 
 - name: create mongo service
   with_sequence:
-    - "count=3"
+    - "count={{ mongodb_replicas }}"
   k8s_v1_service:
     name: mongo-{{ item }}
     namespace: '{{ namespace }}'

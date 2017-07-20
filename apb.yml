@@ -29,13 +29,22 @@ parameters:
   - mongodb_version:
       title: MongoDB Version
       type: enum
-      default: 3.2
+      default: "3.2"
       enum: ["3.2"]
+  - mongodb_replicas:
+      title: MongoDB Replicas
+      type: enum
+      default: "1"
+      enum: [1, 3, 5]
   - rocketchat_version:
       title: RocketChat Version
       type: enum
       default: latest
       enum: ["latest", "0.57.1", "0.56.0"]
+  - rocketchat_replicas:
+      title: RocketChat Instances
+      type: int
+      default: 1
 
 required:
   - mongodb_user
@@ -43,4 +52,6 @@ required:
   - mongodb_name
   - mongodb_admin_pass
   - mongodb_version
+  - mongodb_replicas
   - rocketchat_version
+  - rocketchat_replicas

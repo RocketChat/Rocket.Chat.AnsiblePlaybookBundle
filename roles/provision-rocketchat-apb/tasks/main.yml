@@ -18,19 +18,18 @@
   register: route
 
 - name: create mongo deployment config
+  with_sequence:
+    - "count=3"
   openshift_v1_deployment_config:
-    name: mongo
+    name: mongo-{{ item }}
     namespace: '{{ namespace }}'
     labels:
-      app: mongo
-      service: mongo
+      app: mongo-{{ item }}
     replicas: 1
     selector:
-      app: mongo
-      service: mongo
+      app: mongo-{{ item }}
     spec_template_metadata_labels:
-      app: mongo
-      service: mongo
+      app: mongo-{{ item }}
     containers:
     - name: db
       env:
@@ -44,18 +43,24 @@
         value: "{{ mongodb_admin_pass }}"
       image: mongo:{{ mongodb_version }}
       name: db
-      command:
-      - mongod
-      args: ['--smallfiles', '--oplogSize', '128', '--replSet', 'rs0', '--bind_ip', '0.0.0.0']
+      command: ["/bin/sh"]
+      args: ["-c", "echo \"$POD_IP mongo-{{ item }}\" >> /etc/hosts && cat /etc/hosts && mongod --storageEngine=mmapv1 --smallfiles --oplogSize 128 --replSet rs0 --bind_ip 0.0.0.0"]
       ports:
       - container_port: 27017
         protocol: TCP
         name: mongo-27017
+      env:
+      - name: POD_IP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
     - name: enable-replicaset
       image: geekgonecrazy/mongo-sidecar
       env:
+      - name: MONGO_PRIMARY
+        value: "mongo-1"
       - name: MONGO_HOST
-        value: "mongo"
+        value: "mongo-{{ item }}"
       - name: MONGO_DB
         value: "rocketchat"
 
@@ -79,7 +84,7 @@
       - name: ROOT_URL
         value: "http://{{ route.route.spec.host }}"
       - name: MONGO_URL
-        value: "mongodb://mongo:27017/{{ mongodb_name }}?replicaSet=rs0"
+        value: "mongodb://mongo-1:27017/{{ mongodb_name }}?replicaSet=rs0"
       - name: MONGO_OPLOG_URL
         value: "mongodb://mongo:27017/local?replicaSet=rs0"
       - name: INSTANCE_IP
@@ -108,15 +113,15 @@
         target_port: 3000
 
 - name: create mongo service
+  with_sequence:
+    - "count=3"
   k8s_v1_service:
-    name: mongo
+    name: mongo-{{ item }}
     namespace: '{{ namespace }}'
     labels:
-      app: mongo
-      service: mongo
+      app: mongo-{{ item }}
     selector:
-      app: mongo
-      service: mongo
+      app: mongo-{{ item }}
     ports:
       - name: mongo-27017
         port: 27017

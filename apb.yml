@@ -29,8 +29,8 @@ parameters:
   - mongodb_version:
       title: MongoDB Version
       type: enum
-      default: 3.0
-      enum: ["3.0", "3.2"]
+      default: 3.2
+      enum: ["3.2"]
   - rocketchat_version:
       title: RocketChat Version
       type: enum

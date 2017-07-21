@@ -23,6 +23,8 @@
   openshift_v1_deployment_config:
     name: mongo-{{ item }}
     namespace: '{{ namespace }}'
+    annotations:
+      pod.beta.kubernetes.io/hostname: "mongo-{{ item }}"
     labels:
       app: mongo-{{ item }}
     replicas: 1
@@ -30,6 +32,7 @@
       app: mongo-{{ item }}
     spec_template_metadata_labels:
       app: mongo-{{ item }}
+    hostname: mongo-{{ item }}
     containers:
     - name: db
       env:
@@ -45,19 +48,10 @@
       name: db
       command: ["mongod"]
       args: ["--storageEngine=mmapv1", "--smallfiles", "--oplogSize", "128", "--replSet", "rs0", "--bind_ip", "0.0.0.0"]
-      lifecycle:
-        postStart:
-          exec:
-            command: ["/bin/sh", "-c",  "echo \"$POD_IP mongo-{{ item }}\" >> /etc/hosts"]
       ports:
       - container_port: 27017
         protocol: TCP
         name: mongo-27017
-      env:
-      - name: POD_IP
-        valueFrom:
-          fieldRef:
-            fieldPath: status.podIP
     - name: enable-replicaset
       image: geekgonecrazy/mongo-sidecar
       env:

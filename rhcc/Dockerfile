@@ -1,4 +1,4 @@
-FROM ansibleplaybookbundle/apb-base
+FROM registry.access.redhat.com/openshift3/apb-base
 
 LABEL "com.redhat.apb.spec"=\
 "dmVyc2lvbjogMS4wCm5hbWU6IHJvY2tldGNoYXQtcmgtYXBiCmRlc2NyaXB0aW9uOiBUaGlzIEFQ\
@@ -31,10 +31,18 @@ cGU6IGVudW0KICAgICAgICB0aXRsZTogTW9uZ29EQiBWZXJzaW9uCiAgICAgICAgcmVxdWlyZWQ6\
 IFRydWUKICAgICAgLSBuYW1lOiByb2NrZXRjaGF0X3ZlcnNpb24KICAgICAgICBkZWZhdWx0OiBs\
 YXRlc3QKICAgICAgICBlbnVtOiBbJ2xhdGVzdCcsICcwLjU2LjAnXQogICAgICAgIHR5cGU6IGVu\
 dW0KICAgICAgICB0aXRsZTogUm9ja2V0Q2hhdCBWZXJzaW9uCiAgICAgICAgcmVxdWlyZWQ6IFRy\
-dWUK"
-
+dWUK" \
+ 
+        name="Rocket.Chat APB" \
+        vendor="Rocket.Chat" \
+        version="11-16-2017" \
+        release="11-16-2017" \
+	description="Rocketchat-apb is an ansible playbook bundle which deploys 1 rocketchat container and 1 MongoDB container.  Deployment requires secrets to be setup for the Red Hat Connect ISV registry (regsitry.connect.redhat.com). " \
+	summary="Ansible Playbook Bundle which deploys Rocketchat and MongoDB"
 COPY playbooks /opt/apb/actions
 COPY roles /opt/ansible/roles
+RUN mkdir /licenses
+COPY LICENSE /licenses
 RUN chmod -R g=u /opt/{ansible,apb}
 
 USER apb
